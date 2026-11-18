@@ -6,3 +6,6 @@ build/
 *.iml
 .idea/
 .vscode/
+
+trail-pacing-android-apk/
+trail-pacing-windows-x64/
