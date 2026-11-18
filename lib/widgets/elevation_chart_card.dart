@@ -26,7 +26,7 @@ class ElevationChartCard extends StatelessWidget {
         .map(
           (seg) => VerticalLine(
             x: seg.cumulativeDistance3dKm,
-            color: Colors.orange.withValues(alpha: 0.75),
+            color: Colors.orange.withOpacity(0.75),
             strokeWidth: 1.5,
             dashArray: const [5, 4],
             label: VerticalLineLabel(
@@ -105,7 +105,7 @@ class ElevationChartCard extends StatelessWidget {
                       dotData: const FlDotData(show: false),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Colors.teal.withValues(alpha: 0.2),
+                        color: Colors.teal.withOpacity(0.2),
                       ),
                     ),
                   ],
