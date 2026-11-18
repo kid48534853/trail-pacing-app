@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/gear_models.dart';
 
 class GearNotifier extends AsyncNotifier<GearPlanState> {
-  static const String _storageKey = 'offline_gear_plan_state_v1';
+  static const String _storageKey = 'offline_gear_plan_state_v3';
 
   @override
   Future<GearPlanState> build() async {
@@ -32,7 +32,7 @@ class GearNotifier extends AsyncNotifier<GearPlanState> {
       colorHex: palette[cur.categories.length % palette.length],
       items: const [],
     );
-    await _persist(GearPlanState(tripTitle: cur.tripTitle, categories: [...cur.categories, newCat]));
+    await _persist(cur.copyWith(categories: [...cur.categories, newCat]));
   }
 
   Future<void> addItem(String catId, GearItem item) async {
@@ -41,18 +41,16 @@ class GearNotifier extends AsyncNotifier<GearPlanState> {
     final nextCats = cur.categories
         .map((c) => c.id == catId ? c.copyWith(items: [...c.items, item]) : c)
         .toList();
-    await _persist(GearPlanState(tripTitle: cur.tripTitle, categories: nextCats));
+    await _persist(cur.copyWith(categories: nextCats));
   }
 
   Future<void> deleteItem(String catId, String itemId) async {
     final cur = state.valueOrNull;
     if (cur == null) return;
     final nextCats = cur.categories
-        .map((c) => c.id == catId
-            ? c.copyWith(items: c.items.where((i) => i.id != itemId).toList())
-            : c)
+        .map((c) => c.id == catId ? c.copyWith(items: c.items.where((i) => i.id != itemId).toList()) : c)
         .toList();
-    await _persist(GearPlanState(tripTitle: cur.tripTitle, categories: nextCats));
+    await _persist(cur.copyWith(categories: nextCats));
   }
 
   Future<void> toggleCheck(String catId, String itemId, {required bool isStage2}) async {
@@ -70,18 +68,52 @@ class GearNotifier extends AsyncNotifier<GearPlanState> {
       }).toList();
       return c.copyWith(items: nextItems);
     }).toList();
-    await _persist(GearPlanState(tripTitle: cur.tripTitle, categories: nextCats));
+    await _persist(cur.copyWith(categories: nextCats));
   }
 
   Future<void> resetAllChecks() async {
     final cur = state.valueOrNull;
     if (cur == null) return;
     final nextCats = cur.categories
-        .map((c) => c.copyWith(
-              items: c.items.map((i) => i.copyWith(stage1: false, stage2: false)).toList(),
-            ))
+        .map((c) => c.copyWith(items: c.items.map((i) => i.copyWith(stage1: false, stage2: false)).toList()))
         .toList();
-    await _persist(GearPlanState(tripTitle: cur.tripTitle, categories: nextCats));
+    await _persist(cur.copyWith(categories: nextCats));
+  }
+
+  Future<void> addItineraryDay(ItineraryDay day) async {
+    final cur = state.valueOrNull;
+    if (cur == null) return;
+    await _persist(cur.copyWith(itinerary: [...cur.itinerary, day]));
+  }
+
+  Future<void> deleteItineraryDay(String id) async {
+    final cur = state.valueOrNull;
+    if (cur == null) return;
+    await _persist(cur.copyWith(itinerary: cur.itinerary.where((d) => d.id != id).toList()));
+  }
+
+  Future<void> updatePlanDoc(SafetyPlanDoc doc) async {
+    final cur = state.valueOrNull;
+    if (cur == null) return;
+    await _persist(cur.copyWith(planDoc: doc));
+  }
+
+  Future<void> updateNutrition({
+    double? userWeightKg,
+    double? dailyKcal,
+    double? foodDensity,
+    double? waterLiters,
+  }) async {
+    final cur = state.valueOrNull;
+    if (cur == null) return;
+    await _persist(
+      cur.copyWith(
+        userWeightKg: userWeightKg,
+        dailyKcal: dailyKcal,
+        foodDensity: foodDensity,
+        waterLiters: waterLiters,
+      ),
+    );
   }
 }
 
