@@ -1,7 +1,7 @@
 name: trail_pacing_app
 description: 完全離線越野跑補給與配速策略計算器 (Windows Desktop & Android APK)
 publish_to: 'none'
-version: 1.0.0+1
+version: 2.0.0+2
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
